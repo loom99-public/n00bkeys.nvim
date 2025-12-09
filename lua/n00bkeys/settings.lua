@@ -1,9 +1,12 @@
+---@tag n00bkeys.settings
 --- Settings Module
 --- Persistent storage for pre-prompt settings (global and project-specific)
 --- Handles file I/O, path resolution, and caching
+---@private
 local M = {}
 
 local log = require("n00bkeys.util.log")
+local fs = require("n00bkeys.util.fs")
 
 -- Internal state cache
 M._cache = {
@@ -70,18 +73,6 @@ end
 function M.get_project_settings_path()
     local project_root = M.find_project_root()
     return project_root .. "/" .. M.PROJECT_SUBPATH
-end
-
---- Ensure directory exists, create if needed
---- @param path string File path (directory will be extracted)
---- @return boolean Success
-function M.ensure_directory(path)
-    local dir = vim.fn.fnamemodify(path, ":h")
-    if vim.fn.isdirectory(dir) == 0 then
-        local ok = vim.fn.mkdir(dir, "p")
-        return ok == 1
-    end
-    return true
 end
 
 --- Load global settings from file
@@ -172,7 +163,7 @@ function M.save_global(settings)
     local path = M.get_global_settings_path()
 
     -- Ensure directory exists
-    if not M.ensure_directory(path) then
+    if not fs.ensure_directory(path) then
         log.error("settings", "Failed to create directory for: %s", path)
         return false
     end
@@ -213,7 +204,7 @@ function M.save_project(settings)
     local path = M.get_project_settings_path()
 
     -- Ensure directory exists
-    if not M.ensure_directory(path) then
+    if not fs.ensure_directory(path) then
         log.error("settings", "Failed to create directory for: %s", path)
         return false
     end
@@ -247,8 +238,9 @@ function M.save_project(settings)
     return true
 end
 
---- Clear cached settings (useful for testing)
-function M.clear_cache()
+---@private
+-- Internal: Clear cache for testing
+function M._clear_cache()
     M._cache.global = nil
     M._cache.project = nil
     M._cache.project_root = nil

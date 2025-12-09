@@ -1,9 +1,12 @@
+---@tag n00bkeys.history
 --- History Module
 --- Persistent storage for conversation history
 --- Handles file I/O, conversation management, and v1→v2 migration
+---@private
 local M = {}
 
 local log = require("n00bkeys.util.log")
+local fs = require("n00bkeys.util.fs")
 
 -- Constants
 M.HISTORY_VERSION = 2 -- Updated to v2 for conversational storage
@@ -28,18 +31,6 @@ end
 function M.get_history_file_path()
     local data_dir = vim.fn.stdpath("data")
     return data_dir .. "/" .. M.HISTORY_SUBPATH
-end
-
---- Ensure directory exists, create if needed
---- @param path string File path (directory will be extracted)
---- @return boolean Success
-function M.ensure_directory(path)
-    local dir = vim.fn.fnamemodify(path, ":h")
-    if vim.fn.isdirectory(dir) == 0 then
-        local ok = vim.fn.mkdir(dir, "p")
-        return ok == 1
-    end
-    return true
 end
 
 --- Generate conversation summary from messages
@@ -215,7 +206,7 @@ function M.save(history)
     local path = M.get_history_file_path()
 
     -- Ensure directory exists
-    if not M.ensure_directory(path) then
+    if not fs.ensure_directory(path) then
         log.error("history", "Failed to create directory for: %s", path)
         return false
     end
@@ -331,9 +322,9 @@ function M.delete_conversation_by_index(index)
     return M.save(history)
 end
 
---- Clear all conversations
+--- Clear all conversation history
 --- @return boolean Success
-function M.clear()
+function M.clear_history()
     local history = M.get_default_history()
     return M.save(history)
 end
@@ -420,8 +411,9 @@ function M.delete_entry(index)
     return M.delete_conversation_by_index(index)
 end
 
---- Clear cache (useful for testing)
-function M.clear_cache()
+---@private
+-- Internal: Clear cache for testing
+function M._clear_cache()
     M._cache = nil
 end
 
