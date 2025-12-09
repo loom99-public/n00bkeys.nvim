@@ -339,20 +339,8 @@ Get context relevant to a specific query
 @param query string The user's question
 @return table Context filtered/augmented for the query
 
-------------------------------------------------------------------------------
-                                                               *M.clear_cache()*
-                               `M.clear_cache`()
-Clear cached context (useful for testing or forcing refresh)
-
 
 ==============================================================================
-------------------------------------------------------------------------------
-                                                                             *M*
-                                      `M`
-History Module
-Persistent storage for conversation history
-Handles file I/O, conversation management, and v1→v2 migration
-
 ------------------------------------------------------------------------------
                                                        *M.get_default_history()*
                            `M.get_default_history`()
@@ -365,13 +353,6 @@ Get default v2 history structure
 Get path to history file
 Uses vim.fn.stdpath('data') for Neovim standard data location
 @return string Absolute path to history file
-
-------------------------------------------------------------------------------
-                                                          *M.ensure_directory()*
-                          `M.ensure_directory`({path})
-Ensure directory exists, create if needed
-@param path string File path (directory will be extracted)
-@return boolean Success
 
 ------------------------------------------------------------------------------
                                                             *generate_summary()*
@@ -439,9 +420,9 @@ Delete conversation by index (1-indexed, newest first)
 @return boolean Success
 
 ------------------------------------------------------------------------------
-                                                                     *M.clear()*
-                                  `M.clear`()
-Clear all conversations
+                                                             *M.clear_history()*
+                              `M.clear_history`()
+Clear all conversation history
 @return boolean Success
 
 ------------------------------------------------------------------------------
@@ -472,11 +453,6 @@ Creates a new conversation with one user message and one assistant message
 Legacy compatibility: Delete entry by index (v1 format)
 @param index number Entry index (1-indexed, newest first)
 @return boolean Success
-
-------------------------------------------------------------------------------
-                                                               *M.clear_cache()*
-                               `M.clear_cache`()
-Clear cache (useful for testing)
 
 
 ==============================================================================
@@ -585,13 +561,6 @@ Build messages array for OpenAI API
 
 ==============================================================================
 ------------------------------------------------------------------------------
-                                                                             *M*
-                                      `M`
-Settings Module
-Persistent storage for pre-prompt settings (global and project-specific)
-Handles file I/O, path resolution, and caching
-
-------------------------------------------------------------------------------
                                                       *M.get_default_settings()*
                            `M.get_default_settings`()
 Get default settings structure
@@ -616,13 +585,6 @@ Searches upward for .git directory, falls back to cwd
                         `M.get_project_settings_path`()
 Get path to project settings file
 @return string Absolute path to project settings file
-
-------------------------------------------------------------------------------
-                                                          *M.ensure_directory()*
-                          `M.ensure_directory`({path})
-Ensure directory exists, create if needed
-@param path string File path (directory will be extracted)
-@return boolean Success
 
 ------------------------------------------------------------------------------
                                                                *M.load_global()*
@@ -651,11 +613,6 @@ Save global settings to file
 Save project settings to file
 @param settings table Settings to save (will merge with defaults)
 @return boolean Success
-
-------------------------------------------------------------------------------
-                                                               *M.clear_cache()*
-                               `M.clear_cache`()
-Clear cached settings (useful for testing)
 
 ------------------------------------------------------------------------------
                                                         *M.get_selected_scope()*
@@ -739,9 +696,9 @@ Add an assistant message to the current conversation
 @param content string Message content
 
 ------------------------------------------------------------------------------
-                                                         *M.save_conversation()*
+                                                 *n00bkeys.ui.save_conversation*
+                                      *Save* *the* *current* *conversation* *to* *history*
                             `M.save_conversation`()
-Save the current conversation to history
 
 ------------------------------------------------------------------------------
                                                          *M.load_conversation()*
@@ -906,9 +863,9 @@ Open a conversation from history by index
 @param index number Conversation index (1-indexed, newest first)
 
 ------------------------------------------------------------------------------
-                                                       *M.delete_conversation()*
-                        `M.delete_conversation`({index})
-Delete a conversation by index
+                                                      *M.delete_history_entry()*
+                       `M.delete_history_entry`({index})
+Delete history entry from UI
 @param index number Conversation index (1-indexed, newest first)
 
 ------------------------------------------------------------------------------
@@ -1040,9 +997,9 @@ Add an error message to the conversation display
 @param content string Error message content
 
 ------------------------------------------------------------------------------
-                                                                     *M.clear()*
-                                  `M.clear`()
-Clear and start a new conversation
+                                                        *M.clear_conversation()*
+                            `M.clear_conversation`()
+Clear current conversation and start new one
 
 ------------------------------------------------------------------------------
                                                               *M.focus_prompt()*
@@ -1059,6 +1016,15 @@ Apply the last response as the new prompt
                               `M.cancel_request`()
 Cancel pending request and restore the user's prompt
 Called via <C-c> during loading state
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                          *M.ensure_directory()*
+                          `M.ensure_directory`({path})
+Ensure directory exists, create if needed
+@param path string File path (directory will be extracted)
+@return boolean Success
 
 
  vim:tw=78:ts=8:noet:ft=help:norl:
