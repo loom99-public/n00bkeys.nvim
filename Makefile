@@ -3,7 +3,7 @@
 all: documentation lint luals test
 
 # runs all the test files.
-# Timeout after 120s to prevent indefinite hangs (19 test files should complete in ~60s)
+# Timeout after 300s to prevent indefinite hangs (288 test cases take ~180s)
 test:
 	make deps
 	nvim --version | head -n 1 && echo ''
@@ -14,9 +14,9 @@ test:
 		nvim --headless --noplugin -u ./scripts/minimal_init.lua \
 			-c "lua MiniTest.run({ execute = { reporter = MiniTest.gen_reporter.stdout({ group_depth = 2 }) } })"; \
 	else \
-		$$TIMEOUT_CMD 120s nvim --headless --noplugin -u ./scripts/minimal_init.lua \
+		$$TIMEOUT_CMD 300s nvim --headless --noplugin -u ./scripts/minimal_init.lua \
 			-c "lua MiniTest.run({ execute = { reporter = MiniTest.gen_reporter.stdout({ group_depth = 2 }) } })" \
-			|| (echo "ERROR: Tests timed out after 120 seconds or failed" && exit 1); \
+			|| (echo "ERROR: Tests timed out after 300 seconds or failed" && exit 1); \
 	fi
 
 # runs all the test files on the nightly version, `bob` must be installed.
