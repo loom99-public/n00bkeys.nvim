@@ -1,0 +1,1064 @@
+                                                                      *n00bkeys*
+*n00bkeys.nvim* AI-powered Neovim keybinding assistant
+
+MIT License Copyright (c) 2025 Brandon Fryslie
+
+==============================================================================
+
+Ask natural language questions about Neovim keybindings and get
+context-aware responses powered by OpenAI GPT models.
+
+# Setup ~
+
+This plugin requires setup to be called before use:
+>
+  require("n00bkeys").setup()
+<
+
+# Minimal Configuration ~
+>
+  require("n00bkeys").setup({
+    -- Uses default configuration
+  })
+<
+
+# Custom Configuration ~
+>
+  require("n00bkeys").setup({
+    openai_model = "gpt-4",
+    openai_max_tokens = 1000,
+    restore_conversation = "session", -- or "always" or "never"
+    keymaps = {
+      submit = "<CR>",
+      clear = "<C-c>",
+      focus = "<C-i>",
+      apply = "<C-a>",
+      close = "<Esc>",
+      new_conversation = "<C-n>",
+    },
+    prompt_template = [[You are a Neovim expert.
+
+{context}
+
+Provide concise keybinding help.]],
+  })
+<
+
+# Usage ~
+
+Open the n00bkeys floating window:
+>
+  :Noobkeys
+  " or use the short alias:
+  :Nk
+<
+
+In the window:
+- Type your question (placeholder text auto-clears when typing)
+- Press `<CR>` to submit your query
+- Press `<M-CR>` or `<A-CR>` to insert a newline (for multi-line prompts)
+- See AI-powered response
+
+# Keybindings ~
+
+In n00bkeys window (all customizable):
+- `<CR>` - Submit query to OpenAI (works in normal and insert mode)
+- `<M-CR>` / `<A-CR>` - Insert newline in insert mode (for multi-line prompts)
+- `<C-c>` - Clear prompt and response (normal mode)
+- `<C-i>` - Focus prompt (enter insert mode)
+- `<C-a>` - Apply last response to prompt (normal mode)
+- `<C-n>` - Start a new conversation (clears current and starts fresh)
+- `<Esc>` / `q` - Close window (normal mode)
+
+# Configuration Options ~
+
+API Key Setup:
+Set OPENAI_API_KEY environment variable or create .env file
+
+Available options:
+- `openai_model` (string) - OpenAI model to use (default: "gpt-4o-mini")
+- `openai_max_tokens` (number) - Max tokens in response (default: 500)
+- `openai_temperature` (number) - Temperature for responses (default: 0.7)
+- `openai_timeout` (number) - Request timeout in seconds (default: 30)
+- `openai_api_key` (string|nil) - API key (use env var instead)
+- `keymaps` (table) - Custom keybindings
+- `prompt_template` (string|nil) - Custom system prompt template
+- `debug` (boolean) - Enable debug logging (default: false)
+- `restore_conversation` (string) - Conversation restore mode:
+  - "session" - Restore within Neovim session (default)
+  - "always" - Restore across Neovim restarts
+  - "never" - Always start fresh
+
+# Context-Aware Responses ~
+
+n00bkeys automatically detects:
+- Neovim version
+- Distribution (LazyVim, NvChad, AstroNvim, or Custom)
+- Installed plugins (top 10 from lazy.nvim)
+
+This context is included in queries to provide relevant responses.
+
+# See Also ~
+
+- OpenAI API: https://platform.openai.com/
+- Source: https://github.com/brandon-fryslie/n00bkeys
+- Report bugs: https://github.com/brandon-fryslie/n00bkeys/issues
+
+------------------------------------------------------------------------------
+                                                                *n00bkeys.setup*
+                            `n00bkeys.setup`({opts})
+Setup n00bkeys plugin
+
+This function initializes the plugin with the provided configuration.
+It must be called before using n00bkeys.
+
+Example: ~
+>
+  require("n00bkeys").setup({
+    openai_model = "gpt-4o-mini",
+    openai_max_tokens = 500,
+    openai_temperature = 0.7,
+    keymaps = {
+      submit = "<CR>",
+      clear = "<C-c>",
+      focus = "<C-i>",
+      apply = "<C-a>",
+      close = "<Esc>",
+    },
+    prompt_template = "Custom prompt: {context}",
+  })
+<
+
+Parameters ~
+{opts} `(table|nil)` Configuration options
+Fields ~
+{openai_model} `(string)` OpenAI model to use (default: "gpt-4o-mini")
+{openai_max_tokens} `(number)` Max response tokens (default: 500)
+{openai_temperature} `(number)` Response creativity 0-1 (default: 0.7)
+{openai_timeout} `(number)` Request timeout in seconds (default: 30)
+{openai_api_key} `(string|nil)` API key (use env var instead)
+{keymaps} `(table)` Custom keybindings
+{keymaps.submit} `(string)` Submit query keybinding (default: "<CR>")
+{keymaps.clear} `(string)` Clear prompt keybinding (default: "<C-c>")
+{keymaps.focus} `(string)` Focus prompt keybinding (default: "<C-i>")
+{keymaps.apply} `(string)` Apply response keybinding (default: "<C-a>")
+{keymaps.close} `(string)` Close window keybinding (default: "<Esc>")
+{keymaps.new_conversation} `(string)` Start new conversation keybinding (default: "<C-n>")
+{prompt_template} `(string|nil)` Custom system prompt template
+{debug} `(boolean)` Enable debug logging (default: false)
+{restore_conversation} `(string)` Conversation restore mode: "session", "always", or "never" (default: "session")
+
+------------------------------------------------------------------------------
+                                                               *n00bkeys.enable*
+                           `n00bkeys.enable`({scope})
+Enable n00bkeys
+
+Opens the n00bkeys floating window.
+This is typically called via the :n00bkeys command.
+
+Example: ~
+>
+  require("n00bkeys").enable()
+<
+
+Parameters ~
+{scope} `(string|nil)` Internal scope parameter (for testing)
+
+------------------------------------------------------------------------------
+                                                              *n00bkeys.disable*
+                              `n00bkeys.disable`()
+Disable n00bkeys
+
+Closes the n00bkeys floating window.
+
+Example: ~
+>
+  require("n00bkeys").disable()
+<
+
+------------------------------------------------------------------------------
+                                                               *n00bkeys.toggle*
+                              `n00bkeys.toggle`()
+Toggle n00bkeys window
+
+Opens or closes the n00bkeys window depending on current state.
+
+Example: ~
+>
+  require("n00bkeys").toggle()
+<
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                              *n00bkeys.options*
+                               `n00bkeys.options`
+n00bkeys configuration with its default values.
+
+Type ~
+`(table)`
+Default values:
+>lua
+  n00bkeys.options = {
+      -- Prints useful logs about what event are triggered, and reasons actions are executed.
+      debug = false,
+
+      -- OpenAI API settings
+      openai_model = "gpt-4o-mini",
+      openai_max_tokens = 500,
+      openai_temperature = 0.7,
+      openai_timeout = 30,
+      -- NOT recommended - use OPENAI_API_KEY environment variable instead
+      openai_api_key = nil,
+
+      -- Prompt Engineering
+      prompt_template = nil, -- Custom system prompt template (nil = use default)
+
+      -- History settings
+      history_enabled = true, -- Enable/disable history capture
+      history_max_items = 100, -- Max history entries to keep
+
+      -- Conversation settings
+      max_conversation_turns = 10, -- Max turns to keep in conversation context (older messages pruned)
+      restore_conversation = "session", -- Conversation restore mode: "session" (Neovim instance), "always" (across restarts), "never" (always fresh)
+
+      -- UI settings
+      sidebar_width = 50, -- Width of sidebar in characters
+
+      -- Keybindings (customizable, all buffer-local)
+      keymaps = {
+          -- Tab navigation
+          next_tab = "<Tab>", -- Cycle to next tab
+          prev_tab = "<S-Tab>", -- Cycle to previous tab
+          tab_1 = "1", -- Jump to Query tab
+          tab_2 = "2", -- Jump to History tab
+          tab_3 = "3", -- Jump to Context tab
+          tab_4 = "4", -- Jump to Settings tab
+
+          -- Query tab actions
+          submit = "<CR>", -- Submit query
+          clear = "<C-c>", -- Clear prompt and status
+          focus = "<C-i>", -- Focus prompt for editing
+          apply = "<C-a>", -- Apply last response to prompt
+          new_conversation = "<C-n>", -- Start a new conversation (clears conversation restore state)
+          close = "<Esc>", -- Close window
+      },
+  }
+
+<
+------------------------------------------------------------------------------
+                                                              *n00bkeys.setup()*
+                          `n00bkeys.setup`({options})
+Define your n00bkeys setup.
+
+Parameters ~
+{options} `(table)` Module config table. See |n00bkeys.options|.
+
+Usage ~
+`require("n00bkeys").setup()` (add `{}` with your |n00bkeys.options| table)
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                        *M.get_neovim_version()*
+                            `M.get_neovim_version`()
+Get Neovim version string
+@return string Neovim version (e.g., "0.10.0")
+
+------------------------------------------------------------------------------
+                                                       *M.detect_distribution()*
+                           `M.detect_distribution`()
+Detect Neovim distribution/starter pack
+@return string Distribution name ("LazyVim", "NvChad", "AstroNvim", "LunarVim", or "Custom")
+
+------------------------------------------------------------------------------
+                                                           *M.get_plugin_list()*
+                             `M.get_plugin_list`()
+Get list of installed plugins (all of them, not just 10)
+@return table Array of plugin names
+
+------------------------------------------------------------------------------
+                                                           *M.get_lsp_clients()*
+                             `M.get_lsp_clients`()
+Get active LSP clients for current buffer
+@return table Array of LSP client info {name, root_dir, capabilities}
+
+------------------------------------------------------------------------------
+                                                     *M.get_diagnostic_config()*
+                          `M.get_diagnostic_config`()
+Get current diagnostic configuration
+@return table Diagnostic config
+
+------------------------------------------------------------------------------
+                                                     *M.get_diagnostic_counts()*
+                          `M.get_diagnostic_counts`()
+Get diagnostic counts for current buffer
+@return table Counts by severity
+
+------------------------------------------------------------------------------
+                                                      *M.get_relevant_keymaps()*
+                      `M.get_relevant_keymaps`({patterns})
+Get keymaps matching a pattern (for relevant context)
+@param patterns table Array of patterns to match in lhs or desc
+@return table Array of keymap info
+
+------------------------------------------------------------------------------
+                                                        *M.get_leader_keymaps()*
+                            `M.get_leader_keymaps`()
+Get all leader keymaps (most useful for users)
+@return table Array of leader keymap info
+
+------------------------------------------------------------------------------
+                                                        *M.get_buffer_context()*
+                            `M.get_buffer_context`()
+Get current buffer/file context
+@return table Buffer context info
+
+------------------------------------------------------------------------------
+                                                          *M.get_linting_info()*
+                             `M.get_linting_info`()
+Check for common linting/formatting plugins and their status
+@return table Linting plugin info
+
+------------------------------------------------------------------------------
+                                                    *M.get_which_key_mappings()*
+                          `M.get_which_key_mappings`()
+Get which-key mappings if available
+@return table|nil Which-key mappings or nil
+
+------------------------------------------------------------------------------
+                                                                   *M.collect()*
+                                 `M.collect`()
+Gather all context (cached per buffer/filetype)
+@return table Full context object
+
+------------------------------------------------------------------------------
+                                                         *M.collect_for_query()*
+                         `M.collect_for_query`({query})
+Get context relevant to a specific query
+@param query string The user's question
+@return table Context filtered/augmented for the query
+
+------------------------------------------------------------------------------
+                                                               *M.clear_cache()*
+                               `M.clear_cache`()
+Clear cached context (useful for testing or forcing refresh)
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                                             *M*
+                                      `M`
+History Module
+Persistent storage for conversation history
+Handles file I/O, conversation management, and v1→v2 migration
+
+------------------------------------------------------------------------------
+                                                       *M.get_default_history()*
+                           `M.get_default_history`()
+Get default v2 history structure
+@return table Default history with conversations array
+
+------------------------------------------------------------------------------
+                                                     *M.get_history_file_path()*
+                          `M.get_history_file_path`()
+Get path to history file
+Uses vim.fn.stdpath('data') for Neovim standard data location
+@return string Absolute path to history file
+
+------------------------------------------------------------------------------
+                                                          *M.ensure_directory()*
+                          `M.ensure_directory`({path})
+Ensure directory exists, create if needed
+@param path string File path (directory will be extracted)
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                            *generate_summary()*
+                         `generate_summary`({messages})
+Generate conversation summary from messages
+Uses first user message, truncated to 50 chars
+@param messages table Array of messages
+@return string Summary text
+
+------------------------------------------------------------------------------
+                                                            *migrate_v1_to_v2()*
+                         `migrate_v1_to_v2`({v1_data})
+Migrate v1 history to v2 format
+Each v1 entry becomes a separate conversation with 2 messages
+@param v1_data table V1 history data
+@return table V2 history data
+
+------------------------------------------------------------------------------
+                                                              *backup_v1_file()*
+                            `backup_v1_file`({path})
+Create backup of v1 history file
+@param path string Path to history file
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                                      *M.load()*
+                                   `M.load`()
+Load history from file with automatic v1→v2 migration
+Returns empty history if file missing or corrupt
+@return table History object with version and conversations
+
+------------------------------------------------------------------------------
+                                                                      *M.save()*
+                              `M.save`({history})
+Save history to file
+@param history table History object to save
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                         *M.save_conversation()*
+                     `M.save_conversation`({conversation})
+Add or update a conversation
+@param conversation table Conversation object with id, messages, etc.
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                          *M.get_conversation()*
+                        `M.get_conversation`({conv_id})
+Get conversation by ID
+@param conv_id string Conversation ID
+@return table|nil Conversation object or nil if not found
+
+------------------------------------------------------------------------------
+                                                       *M.delete_conversation()*
+                       `M.delete_conversation`({conv_id})
+Delete conversation by ID
+@param conv_id string Conversation ID
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                              *M.delete_conversation_by_index()*
+                   `M.delete_conversation_by_index`({index})
+Delete conversation by index (1-indexed, newest first)
+@param index number Conversation index
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                                     *M.clear()*
+                                  `M.clear`()
+Clear all conversations
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                         *M.get_conversations()*
+                            `M.get_conversations`()
+Get all conversations (newest first)
+@return table Array of conversations
+
+------------------------------------------------------------------------------
+                                                               *M.get_entries()*
+                               `M.get_entries`()
+Legacy compatibility: Get all entries (v1 format)
+Returns conversations converted to flat entry list for backwards compatibility
+@return table Array of entries (v1 format)
+
+------------------------------------------------------------------------------
+                                                                 *M.add_entry()*
+                      `M.add_entry`({prompt}, {response})
+Legacy compatibility: Add entry (v1 format)
+Creates a new conversation with one user message and one assistant message
+@param prompt string User query
+@param response string AI response
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                              *M.delete_entry()*
+                           `M.delete_entry`({index})
+Legacy compatibility: Delete entry by index (v1 format)
+@param index number Entry index (1-indexed, newest first)
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                               *M.clear_cache()*
+                               `M.clear_cache`()
+Clear cache (useful for testing)
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                                      *M.post()*
+                 `M.post`({url}, {headers}, {body}, {callback})
+Make an async POST request using curl
+Parameters ~
+{url} `(string)` URL to POST to
+{headers} `(table<string, string>)` HTTP headers
+{body} `(table)` Request body (will be JSON encoded)
+{callback} `(function)`(err, response) Callback with (error, response)
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                             *M.setup_keymaps()*
+                          `M.setup_keymaps`({buf_id})
+Setup all keymaps for the n00bkeys buffer
+@param buf_id number Buffer ID to attach keymaps to
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                                 *get_api_key()*
+                                `get_api_key`()
+Get API key from all sources with correct precedence
+Priority: env var > Settings Panel > project .env > user ~/.env > config
+Return ~
+`(string|nil)` api_key
+Return ~
+`(string|nil)` error_message
+
+------------------------------------------------------------------------------
+                                                                     *M.query()*
+                        `M.query`({prompt}, {callback})
+Query OpenAI API with a user prompt
+Parameters ~
+{prompt} `(string)` User's question
+{callback} `(function)`(err, response) Callback with (error, response_text)
+
+------------------------------------------------------------------------------
+                                                        *M.query_conversation()*
+                 `M.query_conversation`({messages}, {callback})
+Query OpenAI API with conversation history
+Parameters ~
+{messages} `(table)` Array of conversation messages [{role, content}]
+{callback} `(function)`(err, response) Callback with (error, response_text)
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                       *M.DEFAULT_SYSTEM_PROMPT*
+                           `M.DEFAULT_SYSTEM_PROMPT`
+Default system prompt template with {preprompt} and {context} placeholders
+
+------------------------------------------------------------------------------
+                                                          *format_lsp_clients()*
+                        `format_lsp_clients`({clients})
+Format LSP clients for display
+@param clients table Array of LSP client info
+@return string Formatted string
+
+------------------------------------------------------------------------------
+                                                              *format_keymaps()*
+                          `format_keymaps`({keymaps})
+Format keymaps for display
+@param keymaps table Array of keymap info
+@return string Formatted string
+
+------------------------------------------------------------------------------
+                                                          *format_diagnostics()*
+                          `format_diagnostics`({diag})
+Format diagnostic config for display
+@param diag table Diagnostic info
+@return string Formatted string
+
+------------------------------------------------------------------------------
+                                                              *format_linting()*
+                          `format_linting`({linting})
+Format linting info for display
+@param linting table Linting info
+@return string Formatted string
+
+------------------------------------------------------------------------------
+                                                            *M.format_context()*
+                         `M.format_context`({context})
+Format context object as detailed text for LLM
+@param context table Context object from context.collect_for_query()
+@return string Formatted context string
+
+------------------------------------------------------------------------------
+                                                       *M.build_system_prompt()*
+                     `M.build_system_prompt`({user_query})
+Build system prompt with injected pre-prompt and context
+@param user_query string|nil Optional user query for query-specific context
+@return string System prompt with preprompt and context
+
+------------------------------------------------------------------------------
+                                                            *M.build_messages()*
+                        `M.build_messages`({user_query})
+Build messages array for OpenAI API
+@param user_query string User's question
+@return table Messages array with system and user messages
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                                             *M*
+                                      `M`
+Settings Module
+Persistent storage for pre-prompt settings (global and project-specific)
+Handles file I/O, path resolution, and caching
+
+------------------------------------------------------------------------------
+                                                      *M.get_default_settings()*
+                           `M.get_default_settings`()
+Get default settings structure
+@return table Default settings
+
+------------------------------------------------------------------------------
+                                                  *M.get_global_settings_path()*
+                         `M.get_global_settings_path`()
+Get path to global settings file
+Uses vim.fn.stdpath('config') for Neovim standard location
+@return string Absolute path to global settings file
+
+------------------------------------------------------------------------------
+                                                         *M.find_project_root()*
+                            `M.find_project_root`()
+Find project root directory
+Searches upward for .git directory, falls back to cwd
+@return string Absolute path to project root
+
+------------------------------------------------------------------------------
+                                                 *M.get_project_settings_path()*
+                        `M.get_project_settings_path`()
+Get path to project settings file
+@return string Absolute path to project settings file
+
+------------------------------------------------------------------------------
+                                                          *M.ensure_directory()*
+                          `M.ensure_directory`({path})
+Ensure directory exists, create if needed
+@param path string File path (directory will be extracted)
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                               *M.load_global()*
+                               `M.load_global`()
+Load global settings from file
+Returns defaults if file missing or corrupt
+@return table Settings table
+
+------------------------------------------------------------------------------
+                                                              *M.load_project()*
+                               `M.load_project`()
+Load project settings from file
+Returns defaults if file missing or corrupt
+@return table Settings table
+
+------------------------------------------------------------------------------
+                                                               *M.save_global()*
+                          `M.save_global`({settings})
+Save global settings to file
+@param settings table Settings to save (will merge with defaults)
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                              *M.save_project()*
+                          `M.save_project`({settings})
+Save project settings to file
+@param settings table Settings to save (will merge with defaults)
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                               *M.clear_cache()*
+                               `M.clear_cache`()
+Clear cached settings (useful for testing)
+
+------------------------------------------------------------------------------
+                                                        *M.get_selected_scope()*
+                            `M.get_selected_scope`()
+Get the selected scope (global or project)
+Always reads from global settings
+@return string "global" or "project"
+
+------------------------------------------------------------------------------
+                                                        *M.set_selected_scope()*
+                        `M.set_selected_scope`({scope})
+Set the selected scope
+Always saves to global settings
+@param scope string "global" or "project"
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                     *M.get_current_preprompt()*
+                          `M.get_current_preprompt`()
+Get the current pre-prompt based on selected scope
+@return string Pre-prompt text (may be empty)
+
+------------------------------------------------------------------------------
+                                                    *M.save_current_preprompt()*
+                    `M.save_current_preprompt`({preprompt})
+Save pre-prompt to current scope
+@param preprompt string Pre-prompt text
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                       *M.get_current_api_key()*
+                           `M.get_current_api_key`()
+Get the current API key based on selected scope
+@return string API key (may be empty)
+
+------------------------------------------------------------------------------
+                                                      *M.save_current_api_key()*
+                      `M.save_current_api_key`({api_key})
+Save API key to current scope
+@param api_key string API key
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                    *M.get_current_debug_mode()*
+                          `M.get_current_debug_mode`()
+Get the current debug mode based on selected scope
+@return boolean Debug enabled
+
+------------------------------------------------------------------------------
+                                                   *M.save_current_debug_mode()*
+                     `M.save_current_debug_mode`({enabled})
+Save debug mode to current scope
+@param enabled boolean Debug enabled
+@return boolean Success
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                            *setup_highlights()*
+                              `setup_highlights`()
+Setup highlight groups for chat messages
+Uses subtle background colors: pale blue for user, pale green for AI, pale red for errors
+User messages have dimmer text to visually distinguish from AI responses
+
+------------------------------------------------------------------------------
+                                                    *M.start_new_conversation()*
+                          `M.start_new_conversation`()
+Start a new conversation
+Saves current conversation if exists, then initializes fresh state
+
+------------------------------------------------------------------------------
+                                                          *M.add_user_message()*
+                        `M.add_user_message`({content})
+Add a user message to the current conversation
+@param content string Message content
+
+------------------------------------------------------------------------------
+                                                     *M.add_assistant_message()*
+                      `M.add_assistant_message`({content})
+Add an assistant message to the current conversation
+@param content string Message content
+
+------------------------------------------------------------------------------
+                                                         *M.save_conversation()*
+                            `M.save_conversation`()
+Save the current conversation to history
+
+------------------------------------------------------------------------------
+                                                         *M.load_conversation()*
+                        `M.load_conversation`({conv_id})
+Load a conversation from history and set it as active
+@param conv_id string Conversation ID to load
+
+------------------------------------------------------------------------------
+                                                            *M.get_active_tab()*
+                              `M.get_active_tab`()
+Get the currently active tab ID
+@return string Active tab ID ("query" | "history" | "context" | "preprompt" | "settings")
+
+------------------------------------------------------------------------------
+                                                         *M.get_active_buffer()*
+                            `M.get_active_buffer`()
+Get the buffer ID of the active tab
+@return number|nil Buffer ID, or nil if not initialized
+
+------------------------------------------------------------------------------
+                                                             *M.get_tab_state()*
+                          `M.get_tab_state`({tab_id})
+Get state for a specific tab
+@param tab_id string Tab ID
+@return table|nil Tab state object, or nil if invalid
+
+------------------------------------------------------------------------------
+                                                          *M.update_tab_state()*
+                   `M.update_tab_state`({tab_id}, {updates})
+Update state for a specific tab
+@param tab_id string Tab ID
+@param updates table Key-value pairs to update in tab state
+
+------------------------------------------------------------------------------
+                                                              *M.is_valid_tab()*
+                           `M.is_valid_tab`({tab_id})
+Check if a tab ID is valid
+@param tab_id string Tab ID to validate
+@return boolean True if valid
+
+------------------------------------------------------------------------------
+                                                            *M.render_tab_bar()*
+                              `M.render_tab_bar`()
+Render the tab bar for window title/winbar
+Uses compact format to fit in sidebar width: [1*] 2 3 4 5
+@return string Formatted tab bar string
+
+------------------------------------------------------------------------------
+                                                               *update_winbar()*
+                               `update_winbar`()
+Update the winbar (header) to show current tab state
+
+------------------------------------------------------------------------------
+                                                        *M.render_chat_buffer()*
+                            `M.render_chat_buffer`()
+Render the conversation buffer (readonly, no input area)
+Shows conversation messages with [USER] and [AI] labels
+@return table lines Lines of content
+@return table line_roles Array of {start_line, end_line, role} for highlighting
+
+------------------------------------------------------------------------------
+                                               *M.refresh_conversation_buffer()*
+                       `M.refresh_conversation_buffer`()
+Refresh the conversation buffer with current messages
+Updates the readonly conversation display and applies syntax highlighting
+
+------------------------------------------------------------------------------
+                                                   *M.render_preprompt_buffer()*
+                         `M.render_preprompt_buffer`()
+Render the pre-prompt buffer content
+@return table Lines of content
+
+------------------------------------------------------------------------------
+                                                    *M.extract_preprompt_text()*
+                      `M.extract_preprompt_text`({buf_id})
+Extract preprompt text from buffer (everything after separator, before footer)
+@param buf_id number Buffer ID
+@return string Extracted text
+
+------------------------------------------------------------------------------
+                                                  *M.refresh_preprompt_buffer()*
+                         `M.refresh_preprompt_buffer`()
+Refresh preprompt buffer after scope change
+
+------------------------------------------------------------------------------
+                                                    *M.toggle_preprompt_scope()*
+                          `M.toggle_preprompt_scope`()
+Toggle preprompt scope between global and project
+
+------------------------------------------------------------------------------
+                                                    *setup_preprompt_autosave()*
+                      `setup_preprompt_autosave`({buf_id})
+Setup auto-save for preprompt buffer
+@param buf_id number Buffer ID
+
+------------------------------------------------------------------------------
+Render context preview showing the complete system prompt
+@return table Lines for context buffer
+
+------------------------------------------------------------------------------
+                                                    *M.render_settings_buffer()*
+                          `M.render_settings_buffer`()
+Render the settings buffer content
+@return table Lines of content
+
+------------------------------------------------------------------------------
+                                                   *M.refresh_settings_buffer()*
+                         `M.refresh_settings_buffer`()
+Refresh settings buffer after changes
+
+------------------------------------------------------------------------------
+                                                     *M.toggle_settings_scope()*
+                          `M.toggle_settings_scope`()
+Toggle settings scope between global and project
+
+------------------------------------------------------------------------------
+                                                         *M.toggle_debug_mode()*
+                            `M.toggle_debug_mode`()
+Toggle debug mode between enabled and disabled
+
+------------------------------------------------------------------------------
+                                                              *M.edit_api_key()*
+                               `M.edit_api_key`()
+Edit API key via input prompt
+
+------------------------------------------------------------------------------
+                                                     *M.render_history_buffer()*
+                          `M.render_history_buffer`()
+Render history buffer content (conversation-based)
+@return table Lines of content
+
+------------------------------------------------------------------------------
+                                                    *M.refresh_history_buffer()*
+                          `M.refresh_history_buffer`()
+Refresh history buffer (re-render content)
+
+------------------------------------------------------------------------------
+                                             *extract_history_index_at_cursor()*
+                      `extract_history_index_at_cursor`()
+Extract entry index from cursor position in history buffer
+@return number|nil Entry index (1-indexed), or nil if not on entry line
+
+------------------------------------------------------------------------------
+                                               *M.load_history_item_at_cursor()*
+                       `M.load_history_item_at_cursor`()
+Load history item at cursor into Query tab
+
+------------------------------------------------------------------------------
+                                             *M.delete_history_item_at_cursor()*
+                      `M.delete_history_item_at_cursor`()
+Delete history item at cursor
+
+------------------------------------------------------------------------------
+                                                         *M.clear_all_history()*
+                            `M.clear_all_history`()
+Clear all history (with confirmation)
+
+------------------------------------------------------------------------------
+                                            *M.open_conversation_from_history()*
+                  `M.open_conversation_from_history`({index})
+Open a conversation from history by index
+@param index number Conversation index (1-indexed, newest first)
+
+------------------------------------------------------------------------------
+                                                       *M.delete_conversation()*
+                        `M.delete_conversation`({index})
+Delete a conversation by index
+@param index number Conversation index (1-indexed, newest first)
+
+------------------------------------------------------------------------------
+                                                          *M.get_stub_content()*
+                         `M.get_stub_content`({tab_id})
+Get stub content for a tab
+@param tab_id string Tab ID
+@return table Lines of content
+
+------------------------------------------------------------------------------
+                                                         *M.create_tab_buffer()*
+                        `M.create_tab_buffer`({tab_id})
+Create and initialize a buffer for a specific tab
+@param tab_id string Tab ID
+@return number Buffer ID
+
+------------------------------------------------------------------------------
+                                                                *M.switch_tab()*
+                            `M.switch_tab`({tab_id})
+Switch to a specific tab
+@param tab_id string Tab ID to switch to
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                        *M.switch_to_next_tab()*
+                            `M.switch_to_next_tab`()
+Switch to next tab (cycles)
+
+------------------------------------------------------------------------------
+                                                        *M.switch_to_prev_tab()*
+                            `M.switch_to_prev_tab`()
+Switch to previous tab (cycles)
+
+------------------------------------------------------------------------------
+                                                       *M.switch_tab_by_index()*
+                        `M.switch_tab_by_index`({index})
+Switch to tab by index (1-5)
+@param index number Tab index (1-5)
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                       *create_scratch_buffer()*
+                 `create_scratch_buffer`({name}, {modifiable})
+Create a scratch buffer with given options
+@param name string Buffer name for identification
+@param modifiable boolean Whether buffer is editable
+@return number Buffer ID
+
+------------------------------------------------------------------------------
+                                                 *should_restore_conversation()*
+                        `should_restore_conversation`()
+Check if we should restore a conversation based on config
+@return boolean True if restore should be attempted
+
+------------------------------------------------------------------------------
+                                                    *get_last_conversation_id()*
+                          `get_last_conversation_id`()
+Get the last conversation ID based on restore mode
+@return string|nil Conversation ID or nil
+
+------------------------------------------------------------------------------
+                                                     *persist_conversation_id()*
+                      `persist_conversation_id`({conv_id})
+Persist conversation ID to disk (for "always" mode)
+@param conv_id string Conversation ID
+
+------------------------------------------------------------------------------
+                                                    *try_restore_conversation()*
+                          `try_restore_conversation`()
+Attempt to restore the last conversation
+Returns true if restore succeeded, false if failed (caller should create new conversation)
+@return boolean Success
+
+------------------------------------------------------------------------------
+                                                                      *M.open()*
+                                   `M.open`()
+Open the n00bkeys sidebar
+
+------------------------------------------------------------------------------
+                                                                     *M.close()*
+                                  `M.close`()
+Close the n00bkeys sidebar and cleanup
+
+------------------------------------------------------------------------------
+                                                                *M.get_prompt()*
+                                `M.get_prompt`()
+Get the current prompt text from the input buffer
+Reads all lines from the dedicated input buffer
+Return ~
+`(string)` The prompt text
+
+------------------------------------------------------------------------------
+                                                               *update_footer()*
+                            `update_footer`({text})
+Update the footer text
+Parameters ~
+{text} `(string)` Text to show in footer
+
+------------------------------------------------------------------------------
+                                                               *M.set_loading()*
+                         `M.set_loading`({is_loading})
+Set the loading state and update UI
+Parameters ~
+{is_loading} `(boolean)` Whether we're loading
+
+------------------------------------------------------------------------------
+                                                                 *M.set_error()*
+                           `M.set_error`({error_msg})
+Display an error message in the UI
+Parameters ~
+{error_msg} `(string)` The error message to display
+
+------------------------------------------------------------------------------
+                                                              *M.set_response()*
+                          `M.set_response`({response})
+Display a response in the UI (legacy - now handled by conversation buffer)
+Parameters ~
+{response} `(string)` The response text to display
+
+------------------------------------------------------------------------------
+                                                              *M.submit_query()*
+                               `M.submit_query`()
+Submit the current query to the AI
+
+------------------------------------------------------------------------------
+                                                         *M.add_error_message()*
+                        `M.add_error_message`({content})
+Add an error message to the conversation display
+@param content string Error message content
+
+------------------------------------------------------------------------------
+                                                                     *M.clear()*
+                                  `M.clear`()
+Clear and start a new conversation
+
+------------------------------------------------------------------------------
+                                                              *M.focus_prompt()*
+                               `M.focus_prompt`()
+Focus the input area for editing
+
+------------------------------------------------------------------------------
+                                                            *M.apply_response()*
+                              `M.apply_response`()
+Apply the last response as the new prompt
+
+------------------------------------------------------------------------------
+                                                            *M.cancel_request()*
+                              `M.cancel_request`()
+Cancel pending request and restore the user's prompt
+Called via <C-c> during loading state
+
+
+ vim:tw=78:ts=8:noet:ft=help:norl:

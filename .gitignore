@@ -1,0 +1,21 @@
+deps
+**.DS_Store
+.ci
+
+# Backup files
+*.bak
+*.bak*
+*.backup
+*.archived
+
+# Agent planning (local working files)
+.agent_planning/
+
+# IDE
+.idea/
+
+# Claude local settings
+.claude/
+
+# Local n00bkeys data
+.n00bkeys/
