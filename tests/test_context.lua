@@ -69,7 +69,7 @@ end
 
 T["collect"] = function()
     -- Clear any cached data first
-    child.lua([[require("n00bkeys.context").clear_cache()]])
+    child.lua([[require("n00bkeys.context")._clear_cache()]])
 
     local ctx = child.lua_get([[require("n00bkeys.context").collect()]])
 
@@ -81,7 +81,7 @@ end
 
 T["collect caches result"] = function()
     -- Clear cache first
-    child.lua([[require("n00bkeys.context").clear_cache()]])
+    child.lua([[require("n00bkeys.context")._clear_cache()]])
 
     -- Track how many times get_neovim_version is called
     child.lua([[
@@ -104,12 +104,12 @@ T["collect caches result"] = function()
     Helpers.expect.equality(count, 1)
 end
 
-T["clear_cache"] = function()
+T["_clear_cache (internal)"] = function()
     -- Populate cache
     child.lua([[require("n00bkeys.context").collect()]])
 
     -- Clear cache
-    child.lua([[require("n00bkeys.context").clear_cache()]])
+    child.lua([[require("n00bkeys.context")._clear_cache()]])
 
     -- Check cache is cleared
     local cache = child.lua_get([[require("n00bkeys.context")._cache]])

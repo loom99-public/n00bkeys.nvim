@@ -29,7 +29,7 @@ local T = MiniTest.new_set({
                 -- Clear env var
                 vim.env.OPENAI_API_KEY = nil
 
-                require("n00bkeys.settings").clear_cache()
+                require("n00bkeys.settings")._clear_cache()
             ]])
         end,
         post_once = child.stop,
@@ -326,7 +326,7 @@ T["complete workflow: configure settings, make query, verify behavior"] = functi
     -- Step 7: ANTI-GAMING - Close and reopen, verify settings persisted from disk
     child.lua([[
         require("n00bkeys.ui").close()
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     child.lua([[
@@ -345,15 +345,16 @@ end
 T["settings file corruption is handled gracefully"] = function()
     -- Create corrupt settings file
     child.lua([[
+        local fs = require("n00bkeys.util.fs")
         local path = require("n00bkeys.settings").get_global_settings_path()
-        require("n00bkeys.settings").ensure_directory(path)
+        fs.ensure_directory(path)
         local file = io.open(path, "w")
         file:write("{ corrupt json }")
         file:close()
     ]])
 
     -- Clear cache to force re-read
-    child.lua([[require("n00bkeys.settings").clear_cache()]])
+    child.lua([[require("n00bkeys.settings")._clear_cache()]])
 
     -- Attempt to open Settings Panel (should not crash)
     child.lua([[
@@ -550,7 +551,7 @@ T["user can toggle debug mode with <C-d> keypress"] = function()
     -- Verify persistence across reopen
     child.lua([[
         require("n00bkeys.ui").close()
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
     ]])
 

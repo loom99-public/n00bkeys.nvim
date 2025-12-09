@@ -252,7 +252,7 @@ T["Query Capture"]["multiple queries create multiple history entries"] = functio
     setup_mock_success("Use :q to quit")
     child.lua([[
         local ui = require("n00bkeys.ui")
-        ui.clear()
+        ui.clear_conversation()
         vim.api.nvim_buf_set_lines(ui.state.input_buf_id, 0, 1, false, {"quit vim?"})
         ui.submit_query()
     ]])
@@ -263,7 +263,7 @@ T["Query Capture"]["multiple queries create multiple history entries"] = functio
     setup_mock_success("Use / to search")
     child.lua([[
         local ui = require("n00bkeys.ui")
-        ui.clear()
+        ui.clear_conversation()
         vim.api.nvim_buf_set_lines(ui.state.input_buf_id, 0, 1, false, {"search text?"})
         ui.submit_query()
     ]])
@@ -324,7 +324,7 @@ T["Query Capture"]["history respects max_entries limit"] = function()
                 require("n00bkeys.ui").open()
             end
             local ui = require("n00bkeys.ui")
-            ui.clear()
+            ui.clear_conversation()
             vim.api.nvim_buf_set_lines(ui.state.input_buf_id, 0, 1, false,
                 {"Query %d"})
             ui.submit_query()
@@ -564,7 +564,7 @@ T["History Display"]["History tab refreshes when switching to it"] = function()
     setup_mock_success("Second response")
     child.lua([[
         local ui = require("n00bkeys.ui")
-        ui.clear()
+        ui.clear_conversation()
         vim.api.nvim_buf_set_lines(ui.state.input_buf_id, 0, 1, false, {"second"})
         ui.submit_query()
     ]])

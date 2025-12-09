@@ -29,7 +29,7 @@ local T = MiniTest.new_set({
                 -- Clear env var
                 vim.env.OPENAI_API_KEY = nil
 
-                require("n00bkeys.settings").clear_cache()
+                require("n00bkeys.settings")._clear_cache()
             ]])
             -- Define helper function in child process
             child.lua([[
@@ -367,7 +367,7 @@ T["debug mode toggle persists across sessions"] = function()
     -- Close and reopen
     child.lua([[
         require("n00bkeys.ui").close()
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("settings")
     ]])
@@ -558,7 +558,7 @@ T["edit_api_key persists across close and reopen"] = function()
     -- Close window and clear cache
     child.lua([[
         require("n00bkeys.ui").close()
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     -- Reopen and verify key still set
@@ -679,15 +679,16 @@ end
 T["corrupt JSON recovers gracefully"] = function()
     -- Write corrupt JSON
     child.lua([[
+        local fs = require("n00bkeys.util.fs")
         local path = require("n00bkeys.settings").get_global_settings_path()
-        require("n00bkeys.settings").ensure_directory(path)
+        fs.ensure_directory(path)
         local file = io.open(path, "w")
         file:write("{ corrupt json }")
         file:close()
     ]])
 
     -- Clear cache to force re-read
-    child.lua([[require("n00bkeys.settings").clear_cache()]])
+    child.lua([[require("n00bkeys.settings")._clear_cache()]])
 
     -- Open Settings tab (should not crash)
     child.lua([[
@@ -704,7 +705,7 @@ end
 
 T["missing settings file creates new one on save"] = function()
     -- Ensure settings file doesn't exist
-    child.lua([[require("n00bkeys.settings").clear_cache()]])
+    child.lua([[require("n00bkeys.settings")._clear_cache()]])
 
     -- Save via UI action
     child.lua([[
@@ -761,7 +762,7 @@ T["settings persist after window close and reopen"] = function()
     child.lua([[require("n00bkeys.ui").close()]])
 
     -- Clear cache to force re-read from disk
-    child.lua([[require("n00bkeys.settings").clear_cache()]])
+    child.lua([[require("n00bkeys.settings")._clear_cache()]])
 
     -- Reopen
     child.lua([[

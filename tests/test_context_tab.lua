@@ -14,7 +14,7 @@ local T = MiniTest.new_set({
             child.lua([[
                 vim.env.XDG_CONFIG_HOME = vim.fn.tempname()
                 vim.fn.mkdir(vim.env.XDG_CONFIG_HOME, "p")
-                require("n00bkeys.settings").clear_cache()
+                require("n00bkeys.settings")._clear_cache()
             ]])
             -- Define helper function in child process
             child.lua([[
@@ -77,7 +77,7 @@ end
 
 T["Context tab shows empty preprompt by default"] = function()
     child.lua([[
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("context")
     ]])
@@ -95,7 +95,7 @@ end
 T["Context tab shows global preprompt when set"] = function()
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Custom global instructions" })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("context")
     ]])
@@ -110,7 +110,7 @@ T["Context tab shows project preprompt when selected"] = function()
     child.lua([[
         require("n00bkeys.settings").save_project({ preprompt = "Custom project instructions" })
         require("n00bkeys.settings").set_selected_scope("project")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("context")
     ]])
@@ -126,7 +126,7 @@ T["Context tab shows correct scope label"] = function()
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Global text" })
         require("n00bkeys.settings").set_selected_scope("global")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("context")
     ]])
@@ -140,7 +140,7 @@ T["Context tab shows correct scope label"] = function()
         require("n00bkeys.ui").close()
         require("n00bkeys.settings").save_project({ preprompt = "Project text" })
         require("n00bkeys.settings").set_selected_scope("project")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("context")
     ]])
@@ -160,7 +160,7 @@ end
 T["Context tab shows complete system prompt"] = function()
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Be helpful and concise." })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("context")
     ]])
@@ -206,7 +206,7 @@ T["Context tab refreshes when switching to it"] = function()
     child.lua([[
         require("n00bkeys.ui").switch_tab("query")
         require("n00bkeys.settings").save_global({ preprompt = "New instructions" })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     -- Switch back to context - should show updated preprompt
@@ -222,7 +222,7 @@ T["Context tab reflects preprompt changes after scope toggle"] = function()
         require("n00bkeys.settings").save_global({ preprompt = "Global instructions" })
         require("n00bkeys.settings").save_project({ preprompt = "Project instructions" })
         require("n00bkeys.settings").set_selected_scope("global")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     child.lua([[require("n00bkeys.ui").open()]])
@@ -234,7 +234,7 @@ T["Context tab reflects preprompt changes after scope toggle"] = function()
     -- Change scope and refresh
     child.lua([[
         require("n00bkeys.settings").set_selected_scope("project")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").switch_tab("query")  -- Switch away
         require("n00bkeys.ui").switch_tab("context")  -- Switch back
     ]])
@@ -273,7 +273,7 @@ T["Context tab displays multi-line preprompt correctly"] = function()
         require("n00bkeys.settings").save_global({
             preprompt = "Line 1: First instruction\nLine 2: Second instruction\nLine 3: Third instruction"
         })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("context")
     ]])
@@ -331,7 +331,7 @@ T["changes in Pre-Prompt tab visible in Context tab after switch"] = function()
 
     -- Switch to context tab
     child.lua([[
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").switch_tab("context")
     ]])
 

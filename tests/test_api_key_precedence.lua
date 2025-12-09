@@ -29,7 +29,7 @@ local T = MiniTest.new_set({
                 -- Clear env var
                 vim.env.OPENAI_API_KEY = nil
 
-                require("n00bkeys.settings").clear_cache()
+                require("n00bkeys.settings")._clear_cache()
             ]])
         end,
         post_once = child.stop,
@@ -241,7 +241,7 @@ T["Settings Panel respects scope selection"] = function()
     -- Verify global scope
     child.lua([[
         require("n00bkeys.settings").set_selected_scope("global")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
     verify_api_key_via_http("global-key")
 end

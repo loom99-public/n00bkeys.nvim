@@ -14,7 +14,7 @@ local T = MiniTest.new_set({
             child.lua([[
                 vim.env.XDG_CONFIG_HOME = vim.fn.tempname()
                 vim.fn.mkdir(vim.env.XDG_CONFIG_HOME, "p")
-                require("n00bkeys.settings").clear_cache()
+                require("n00bkeys.settings")._clear_cache()
             ]])
             -- Define helper functions in child process
             child.lua([[
@@ -216,7 +216,7 @@ T["scope toggle persists across sessions"] = function()
     -- Close and reopen (simulates new session)
     child.lua([[
         require("n00bkeys.ui").close()
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("preprompt")
     ]])
@@ -235,7 +235,7 @@ T["switching scope loads different preprompt content"] = function()
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Global instructions" })
         require("n00bkeys.settings").save_project({ preprompt = "Project instructions" })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     child.lua([[
@@ -255,7 +255,7 @@ end
 
 T["empty preprompt shows placeholder text"] = function()
     child.lua([[
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("preprompt")
     ]])
@@ -419,7 +419,7 @@ T["text changes trigger auto-save"] = function()
     child.lua([[vim.wait(1000)]])
 
     -- Verify saved
-    child.lua([[require("n00bkeys.settings").clear_cache()]])
+    child.lua([[require("n00bkeys.settings")._clear_cache()]])
     local saved_preprompt = child.lua_get([[require("n00bkeys.settings").get_current_preprompt()]])
 
     expect.match(saved_preprompt, "Auto%-saved preprompt text")
@@ -449,7 +449,7 @@ T["auto-save persists across window close and reopen"] = function()
     -- Close and reopen
     child.lua([[
         require("n00bkeys.ui").close()
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("preprompt")
     ]])
@@ -469,7 +469,7 @@ T["multi-line preprompt text is preserved"] = function()
         require("n00bkeys.settings").save_global({
             preprompt = "Line 1\nLine 2\nLine 3"
         })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
 
         require("n00bkeys.ui").open()
         require("n00bkeys.ui").switch_tab("preprompt")
@@ -529,7 +529,7 @@ T["complete workflow: toggle scope, edit text, verify saved"] = function()
     child.lua([[vim.wait(1000)]])
 
     -- Verify both saved correctly
-    child.lua([[require("n00bkeys.settings").clear_cache()]])
+    child.lua([[require("n00bkeys.settings")._clear_cache()]])
 
     local global_preprompt = child.lua_get([[require("n00bkeys.settings").load_global().preprompt]])
     local project_preprompt =

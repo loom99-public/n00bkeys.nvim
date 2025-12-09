@@ -14,7 +14,7 @@ local T = MiniTest.new_set({
             child.lua([[
                 vim.env.XDG_CONFIG_HOME = vim.fn.tempname()
                 vim.fn.mkdir(vim.env.XDG_CONFIG_HOME, "p")
-                require("n00bkeys.settings").clear_cache()
+                require("n00bkeys.settings")._clear_cache()
             ]])
             -- Define helper function in child process for JSON parsing
             child.lua([[
@@ -71,7 +71,7 @@ end
 T["build_system_prompt() includes preprompt when set"] = function()
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "You are an expert Vim user." })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     local prompt = child.lua_get([[require("n00bkeys.prompt").build_system_prompt()]])
@@ -80,7 +80,7 @@ T["build_system_prompt() includes preprompt when set"] = function()
 end
 
 T["build_system_prompt() works with empty preprompt"] = function()
-    child.lua([[require("n00bkeys.settings").clear_cache()]])
+    child.lua([[require("n00bkeys.settings")._clear_cache()]])
 
     local prompt = child.lua_get([[require("n00bkeys.prompt").build_system_prompt()]])
 
@@ -95,7 +95,7 @@ T["build_system_prompt() uses project preprompt when selected"] = function()
     child.lua([[
         require("n00bkeys.settings").save_project({ preprompt = "Project-specific instructions" })
         require("n00bkeys.settings").set_selected_scope("project")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     local prompt = child.lua_get([[require("n00bkeys.prompt").build_system_prompt()]])
@@ -106,7 +106,7 @@ end
 T["preprompt appears before context in prompt"] = function()
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "PREPROMPT_MARKER" })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     local prompt = child.lua_get([[require("n00bkeys.prompt").build_system_prompt()]])
@@ -130,7 +130,7 @@ T["query includes global preprompt in API request"] = function()
 
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Be extremely concise." })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
 
         require("n00bkeys.ui").open()
         local buf_id = require("n00bkeys.ui").state.input_buf_id
@@ -157,7 +157,7 @@ T["query includes project preprompt in API request when scope is project"] = fun
     child.lua([[
         require("n00bkeys.settings").save_project({ preprompt = "Focus on Python development." })
         require("n00bkeys.settings").set_selected_scope("project")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
 
         require("n00bkeys.ui").open()
         local buf_id = require("n00bkeys.ui").state.input_buf_id
@@ -180,7 +180,7 @@ T["query without preprompt still works"] = function()
     setup_mock_http_with_capture()
 
     child.lua([[
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
 
         require("n00bkeys.ui").open()
         local buf_id = require("n00bkeys.ui").state.input_buf_id
@@ -218,7 +218,7 @@ T["multi-line preprompt is sent correctly"] = function()
         require("n00bkeys.settings").save_global({
             preprompt = "Line 1: Be helpful.\nLine 2: Be concise.\nLine 3: Be accurate."
         })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
 
         require("n00bkeys.ui").open()
         local buf_id = require("n00bkeys.ui").state.input_buf_id
@@ -270,7 +270,7 @@ T["Workflow: set global preprompt -> submit query -> verify in request"] = funct
 
     -- User switches to query tab and submits
     child.lua([[
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
         require("n00bkeys.ui").switch_tab("query")
         local buf_id = require("n00bkeys.ui").state.input_buf_id
         vim.api.nvim_buf_set_lines(buf_id, 0, 1, false, {"How do I copy text?"})
@@ -293,7 +293,7 @@ T["Workflow: toggle scope -> verify correct preprompt in request"] = function()
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Global: Use standard Vim" })
         require("n00bkeys.settings").save_project({ preprompt = "Project: Use Neovim features" })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
 
         require("n00bkeys.ui").open()
     ]])
@@ -315,7 +315,7 @@ T["Workflow: toggle scope -> verify correct preprompt in request"] = function()
     -- Switch to project scope
     child.lua([[
         require("n00bkeys.settings").set_selected_scope("project")
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     -- Submit new query
@@ -340,7 +340,7 @@ T["Workflow: update preprompt -> verify reflected in next query"] = function()
     -- Initial query
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Initial instructions" })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
 
         require("n00bkeys.ui").open()
         local buf_id = require("n00bkeys.ui").state.input_buf_id
@@ -358,7 +358,7 @@ T["Workflow: update preprompt -> verify reflected in next query"] = function()
     -- Update preprompt
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Updated instructions" })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     -- New query
@@ -389,7 +389,7 @@ T["preprompt with quotes is handled correctly"] = function()
         require("n00bkeys.settings").save_global({
             preprompt = 'Always use "visual mode" and \'normal mode\' correctly.'
         })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
 
         require("n00bkeys.ui").open()
         local buf_id = require("n00bkeys.ui").state.input_buf_id
@@ -415,7 +415,7 @@ end
 T["Context tab shows same prompt that is sent to OpenAI"] = function()
     child.lua([[
         require("n00bkeys.settings").save_global({ preprompt = "Consistency test preprompt" })
-        require("n00bkeys.settings").clear_cache()
+        require("n00bkeys.settings")._clear_cache()
     ]])
 
     -- Get prompt from Context tab
