@@ -421,8 +421,9 @@ function M.collect_for_query(query)
     return base
 end
 
---- Clear cached context (useful for testing or forcing refresh)
-function M.clear_cache()
+---@private
+-- Internal: Clear cache for testing
+function M._clear_cache()
     M._cache = nil
     M._cache_key = nil
 end

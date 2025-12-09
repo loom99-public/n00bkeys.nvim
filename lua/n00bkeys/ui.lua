@@ -150,6 +150,7 @@ function M.add_assistant_message(content)
     log.debug("ui", "Added assistant message to conversation")
 end
 
+---@tag n00bkeys.ui.save_conversation
 --- Save the current conversation to history
 function M.save_conversation()
     if not M.state.active_conversation_id or #M.state.current_messages == 0 then
@@ -833,7 +834,7 @@ function M.clear_all_history()
     }, function(input)
         if input and input:lower() == "y" then
             local history = require("n00bkeys.history")
-            history.clear()
+            history.clear_history()
             M.refresh_history_buffer()
         end
     end)
@@ -859,9 +860,9 @@ function M.open_conversation_from_history(index)
     M.load_conversation(conversation.id)
 end
 
---- Delete a conversation by index
+--- Delete history entry from UI
 --- @param index number Conversation index (1-indexed, newest first)
-function M.delete_conversation(index)
+function M.delete_history_entry(index)
     local history = require("n00bkeys.history")
     history.delete_conversation_by_index(index)
 
@@ -1605,8 +1606,8 @@ function M.add_error_message(content)
     log.debug("ui", "Added error message to conversation")
 end
 
---- Clear and start a new conversation
-function M.clear()
+--- Clear current conversation and start new one
+function M.clear_conversation()
     -- Save current conversation if it has messages
     if M.state.active_conversation_id and #M.state.current_messages > 0 then
         M.save_conversation()
@@ -1714,5 +1715,10 @@ function M.cancel_request()
 
     log.debug("ui", "Request cancelled, prompt restored")
 end
+
+-- Backward compatibility aliases
+-- Note: These are public API functions - do not remove
+M.clear = M.clear_conversation
+M.delete_conversation = M.delete_history_entry
 
 return M

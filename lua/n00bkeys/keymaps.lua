@@ -59,7 +59,7 @@ function M.setup_keymaps(buf_id)
         if tab_state and tab_state.is_loading then
             ui.cancel_request()
         else
-            ui.clear()
+            ui.clear_conversation()
         end
     end, vim.tbl_extend("force", opts, { desc = "Clear prompt / Cancel request" }))
 
