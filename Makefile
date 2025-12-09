@@ -3,12 +3,21 @@
 all: documentation lint luals test
 
 # runs all the test files.
+# Timeout after 120s to prevent indefinite hangs (19 test files should complete in ~60s)
 test:
 	make deps
 	nvim --version | head -n 1 && echo ''
-	nvim --headless --noplugin -u ./scripts/minimal_init.lua \
-		-c "lua require('mini.test').setup()" \
-		-c "lua MiniTest.run({ execute = { reporter = MiniTest.gen_reporter.stdout({ group_depth = 2 }) } })"
+	@TIMEOUT_CMD=$$(command -v timeout 2>/dev/null || command -v gtimeout 2>/dev/null); \
+	if [ -z "$$TIMEOUT_CMD" ]; then \
+		echo "WARNING: timeout command not found. Install coreutils: brew install coreutils"; \
+		echo "Running tests without timeout protection..."; \
+		nvim --headless --noplugin -u ./scripts/minimal_init.lua \
+			-c "lua MiniTest.run({ execute = { reporter = MiniTest.gen_reporter.stdout({ group_depth = 2 }) } })"; \
+	else \
+		$$TIMEOUT_CMD 120s nvim --headless --noplugin -u ./scripts/minimal_init.lua \
+			-c "lua MiniTest.run({ execute = { reporter = MiniTest.gen_reporter.stdout({ group_depth = 2 }) } })" \
+			|| (echo "ERROR: Tests timed out after 120 seconds or failed" && exit 1); \
+	fi
 
 # runs all the test files on the nightly version, `bob` must be installed.
 test-nightly:
