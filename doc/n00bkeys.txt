@@ -51,6 +51,8 @@ Open the n00bkeys floating window:
   :Noobkeys
   " or use the short alias:
   :Nk
+  " or use the global keymap:
+  <leader>nk
 <
 
 In the window:
