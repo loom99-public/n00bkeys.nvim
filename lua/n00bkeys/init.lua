@@ -50,8 +50,13 @@
 ---   :Noobkeys
 ---   " or use the short alias:
 ---   :Nk
----   " or use the global keymap:
----   <leader>nk
+--- <
+---
+--- # Recommended Keymap ~
+---
+--- Add to your config:
+--- >
+---   vim.keymap.set("n", "<leader>?", "<cmd>Noobkeys<cr>", { desc = "n00bkeys" })
 --- <
 ---
 --- In the window:
@@ -192,13 +197,6 @@ function n00bkeys.setup(opts)
     vim.api.nvim_create_user_command("Nk", command_handler, {
         nargs = 0,
         desc = "Open n00bkeys AI keybinding assistant (alias)",
-    })
-
-    -- Register global keymap <leader>nk to open n00bkeys
-    vim.keymap.set("n", "<leader>nk", command_handler, {
-        noremap = true,
-        silent = true,
-        desc = "Open n00bkeys AI keybinding assistant",
     })
 
     log.debug("init.setup", "Command registration complete")
