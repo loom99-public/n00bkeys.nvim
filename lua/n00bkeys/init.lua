@@ -52,12 +52,7 @@
 ---   :Nk
 --- <
 ---
---- # Recommended Keymap ~
----
---- Add to your config:
---- >
----   vim.keymap.set("n", "<leader>?", "<cmd>Noobkeys<cr>", { desc = "n00bkeys" })
---- <
+--- Default keymap: `<leader>?` (can be disabled or changed in setup)
 ---
 --- In the window:
 --- - Type your question (placeholder text auto-clears when typing)
@@ -82,6 +77,8 @@
 --- Set OPENAI_API_KEY environment variable or create .env file
 ---
 --- Available options:
+--- - `global_keymap` (string|false) - Global keymap to open (default: "<leader>?")
+---   Set to false to disable, or a string to customize
 --- - `openai_model` (string) - OpenAI model to use (default: "gpt-4o-mini")
 --- - `openai_max_tokens` (number) - Max tokens in response (default: 500)
 --- - `openai_temperature` (number) - Temperature for responses (default: 0.7)
@@ -198,6 +195,19 @@ function n00bkeys.setup(opts)
         nargs = 0,
         desc = "Open n00bkeys AI keybinding assistant (alias)",
     })
+
+    -- Register default global keymap <leader>? (can be disabled via config)
+    local global_keymap = opts and opts.global_keymap
+    if global_keymap == nil then
+        global_keymap = "<leader>?" -- default
+    end
+    if global_keymap and global_keymap ~= false then
+        vim.keymap.set("n", global_keymap, command_handler, {
+            noremap = true,
+            silent = true,
+            desc = "Open n00bkeys AI keybinding assistant",
+        })
+    end
 
     log.debug("init.setup", "Command registration complete")
 
